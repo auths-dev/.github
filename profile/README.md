@@ -1,22 +1,32 @@
 # Auths
 
-**Decentralized identity for developers. Cryptographic commit signing with Git-native storage.**
+**Cryptographic identity and attestation infrastructure for developers, AI agents, and automated workflows.**
 
-Auths replaces GPG, SSH key management, and centralized identity providers with a single, portable developer identity that lives in your Git repository. No servers required. No vendor lock-in. Your identity belongs to you.
+Auths is built on a single observation: the identity that signs a commit, the device that holds the key, and the binary that ships to production are all links in the same chain. Today those links are disconnected — GPG keys that can't rotate, CI secrets with no provenance, AI agents with API keys that never expire. Auths connects them.
+
+One identity primitive — built on [did:keri](https://weboftrust.github.io/ietf-did-keri/draft-pfeairheller-did-keri.html) — handles all of it. The same cryptographic chain that lets you pair a new laptop to your developer identity also lets a CI runner attest that it built a specific binary, on a specific commit, authorized by a specific person. Open the `.auths.json` file attached to any Auths-signed release and you see the full chain: **identity to device to artifact signature**, end to end, verifiable offline.
+
+No servers. No vendor lock-in. Identity and trust relationships stored directly in Git refs. Verification is stateless — hand someone your identity bundle and they can verify everything on an air-gapped machine.
 
 ---
 
 ## What Auths Does
 
-Every commit you sign with Auths is backed by a cryptographic attestation chain rooted in a self-sovereign DID (Decentralized Identifier). Your identity, devices, and trust relationships are stored directly in Git refs — not in a cloud database, not on a third-party server, not in a keyserver you don't control.
+**One identity, every context.** A developer at a terminal, a GitHub Actions runner, an AI agent executing tool calls, a mobile app signing artifacts — each gets a first-class cryptographic identity backed by a self-sovereign DID. Not a shared secret. Not an API key. A real identity with an auditable, append-only history.
+
+**Full-chain provenance.** A signature proves who signed something. Auths proves more: who authorized them to sign, which device they used, when that authorization expires, whether it has been revoked, and — for artifacts — which commit produced the binary and which CI identity built it. Every release ships with a verifiable chain from human identity through build infrastructure to the artifact in your hands.
 
 **Sign commits.** One command replaces the entire GPG key ceremony. `auths init` creates your identity. `auths sign` signs your work. Done.
 
-**Verify anywhere.** Verification is stateless and offline. No network calls, no certificate authorities, no transparency logs to query. Hand someone your identity bundle and they can verify your signatures on an air-gapped machine.
+**Sign artifacts.** The same identity that signs your commits signs your binaries. `auths artifact sign` produces a `.auths.json` attestation bundle that binds the artifact to your identity, the device that produced it, and the full delegation chain. Anyone can verify it without contacting a server.
+
+**Verify anywhere.** Verification is stateless and offline. No certificate authorities, no transparency logs to query. The verifier runs as a native binary, C FFI library, WASM module, or Python package — same verification logic, every platform.
+
+**Delegate with precision.** Issue scoped, time-bound credentials to CI runners, AI agents, and team members. A build agent gets `sign:artifact` for 24 hours. An AI coding assistant gets `sign:commit` scoped to a single repository. Revoke any credential instantly without disrupting others.
 
 **Rotate keys without losing your identity.** Built on KERI (Key Event Receipt Infrastructure), Auths supports pre-rotation — commit to your next key before you need it. Rotate compromised keys without losing your commit history or breaking your identity chain.
 
-**Pair devices cryptographically.** Link your laptop, workstation, and CI runners to a single identity with SAS-verified device pairing. Revoke a stolen device without regenerating everything.
+**Pair devices cryptographically.** Link your laptop, workstation, and CI runners to a single identity with SAS-verified device pairing. The same mechanism that links a developer's second laptop also onboards a CI runner — because in Auths, a CI runner is just another device with scoped capabilities.
 
 ---
 
